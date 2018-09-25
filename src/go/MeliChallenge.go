@@ -10,17 +10,23 @@ import (
 	"strconv"
 	"sort"
 )
-
+/**
+	Estructura para resolver el ejercicio.
+	Sum: suma por tipo de transaccion.
+	Counter: contador por tipo de transaccion
+	UserMap: mapa que posee los usuarios y su cantidad de transaccion por tipo
+	Amount: monto de cada transacción para poder calcular el percentil
+*/
 type AverageData struct {
 	Sum float64
 	Counter   float64
 	UserMap map[string]int
 	Amount []float64
-
 }
 
 type AverageType map[string]*AverageData
 
+// Lee el archivo y devuelve string de lineas
 func readLines(path string) (lines []string, err error) {
 	var (
 		file *os.File
@@ -50,6 +56,7 @@ func readLines(path string) (lines []string, err error) {
 	return
 }
 
+// Crea y escribe el nuevo archivo.
 func writeLines(lines [4]string, path string) (err error) {
 	var (
 		file *os.File
@@ -71,8 +78,7 @@ func writeLines(lines [4]string, path string) (err error) {
 	return
 }
 
-
-
+// Procesa las lineas del archivo. Carga la estructura AverageData con la información del log
 func proccessLog(lines []string) [4]string {
 	typeMap := make(AverageType)
 	typeMap["pago"] = &AverageData{0, 0, make(map[string]int), 	[]float64{}}
@@ -99,19 +105,18 @@ func proccessLog(lines []string) [4]string {
 	return results
 }
 
+// Procesa la estructura cargada con datos para poder realizar los cálculos correspondientes
 func proccessResults(averageType AverageType) [4]string {
 	i := 0
 	var results [4]string
 	var max int
 	var user string
 
-
 	for key, value := range averageType {
 		max = 0
 		user = ""
 		sort.Float64s(value.Amount)
 		indexPercentil := len(value.Amount) * 95 / 100
-		//fmt.Printf("percentil: %f", ))
 
 		for keyUser, valueUser := range value.UserMap {
 			if max < valueUser{
@@ -129,14 +134,13 @@ func proccessResults(averageType AverageType) [4]string {
 }
 
 func main() {
-
 	lines, err := readLines("movements.log")
 
 	results := proccessLog(lines)
 
 	err = writeLines(results, "movements_result.log")
+
 	if err != nil {
 		fmt.Println(err)
 	}
-
 }
